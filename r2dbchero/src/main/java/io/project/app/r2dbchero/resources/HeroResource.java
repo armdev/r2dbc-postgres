@@ -66,7 +66,7 @@ public class HeroResource {
         return userService.deleteById(id);
     }
 
-    @GetMapping("/tweets/{id}")
+    @GetMapping("/user/person/id")
     public Mono<ResponseEntity<User>> load(@RequestParam(required = true, name = "id") Long id) {
         return userService.findById(id)
                 .map(savedTweet -> ResponseEntity.ok(savedTweet))
