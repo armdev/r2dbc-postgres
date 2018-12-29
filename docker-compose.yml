@@ -1,0 +1,44 @@
+version: '3'
+services:
+         
+  postgresnode:
+    image: postgresnode    
+    build: ./postgresnode
+    container_name: postgresnode
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_DB=socnet
+      - POSTGRES_PASSWORD=socnet
+      - POSTGRES_USER=postgres
+    networks:
+      - pnet
+    volumes:
+      - /opt/postgresone/logs/:/opt/postgres/logs
+      - /opt/postgresone/data:/var/lib/postgresql/data
+      - ./postgresnode/postgresql.conf:/etc/postgresql/postgresql.conf:rw   
+    sysctls:
+      - kernel.shmmax=100663296
+      
+  dbsetup:
+    image: dbsetup   
+    build: ./dbsetup
+    container_name: dbsetup
+    restart: always
+    links:   
+      - postgresnode 
+    depends_on:
+      - postgresnode   
+    ports:
+      - '8585:8585'
+    volumes:
+      - /opt/dbsetup/logs/:/opt/dbsetup/logs
+    networks:
+      - pnet
+
+  
+networks:
+  pnet:
+    driver: bridge   
+    ipam:
+      driver: default
