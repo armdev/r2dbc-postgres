@@ -2,9 +2,9 @@ package io.project.app.r2dbchero.resources;
 
 import io.project.app.r2dbchero.domain.User;
 import io.project.app.r2dbchero.services.UserService;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,15 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.springframework.web.reactive.function.server.ServerRequest;
-import org.springframework.web.reactive.function.server.ServerResponse;
-import static org.springframework.web.reactive.function.server.ServerResponse.notFound;
-import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
 import org.springframework.http.ResponseEntity;
-import static org.springframework.web.reactive.function.BodyInserters.fromPublisher;
 
 /**
  *
@@ -67,13 +61,24 @@ public class HeroResource {
     }
 
     @GetMapping("/user/person/id")
+    @CrossOrigin
     public Mono<ResponseEntity<User>> load(@RequestParam(required = true, name = "id") Long id) {
         return userService.findById(id)
-                .map(savedTweet -> ResponseEntity.ok(savedTweet))
+                .map(savedPerson -> ResponseEntity.ok(savedPerson))
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
-    
-    
-    // https://github.com/callicoder/spring-webflux-reactive-rest-api-demo/blob/master/src/main/java/com/example/webfluxdemo/controller/TweetController.java
 
+    @GetMapping("/user/find/all")
+    @CrossOrigin
+    public Mono<ResponseEntity<List<User>>> findAll() {
+
+        final Mono<List<User>> userList = userService.findAll().collectList();
+
+        return userList.map(allList -> ResponseEntity.ok(allList))
+                .defaultIfEmpty(ResponseEntity.notFound().build());
+
+    }
+
+    // https://grokonez.com/reactive-programming/reactor/reactor-convert-flux-into-list-map-reactive-programming
+    // https://github.com/callicoder/spring-webflux-reactive-rest-api-demo/blob/master/src/main/java/com/example/webfluxdemo/controller/TweetController.java
 }
